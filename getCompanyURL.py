@@ -15,11 +15,11 @@ service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
 # Read input list file
 f = 'sampleList.csv'
 df = pd.read_csv(f)
-#df = df.head()
+df = df.head(10)
 
 #------------------------------------------------------------------------------------------------------------
 
-def getAPI_Domain(company_name):
+def getDomain(company_name):
 
 	query = company_name
 	params = {
@@ -32,15 +32,25 @@ def getAPI_Domain(company_name):
 	url = service_url + '?' + urllib.urlencode(params)
 	response = json.loads(urllib.urlopen(url).read())
 
-	for element in response['itemListElement']:
-		if 'url' in element['result'].keys():
-			element['result']['url'] = element['result']['url'].encode("utf-8")
-			return element['result']['url']
+	if 'itemListElement' in response.keys():
+		for element in response['itemListElement']:
+			if 'url' in element['result'].keys():
+				element['result']['url'] = element['result']['url'].encode("utf-8")
+				return element['result']['url']
 
 #-------------------------------------------------------------------------------------------------------------
 
-# calls getAPI_Domain() on each 'Account Name'
-df['Domain'] = df['Account Name'].apply(getAPI_Domain)
+# Helper function
+def getDomains(accountName):
+
+	df['Domain'] = accountName.apply(getDomain)
+	return df
+
+#-------------------------------------------------------------------------------------------------------------
+
+# Test helper function
+df = getDomains(df['Account Name'])
+
 
 # What % of domains were retrieved
 num_names = df['Account Name'].count()
@@ -51,9 +61,6 @@ print "'%' of domains retrieved:", round(percent, 2)
 
 
 df.to_csv('sampleListInput.csv', index = False)
-
-
-
 
 
 
