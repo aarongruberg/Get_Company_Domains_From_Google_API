@@ -15,7 +15,7 @@ service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
 # Read input list file
 f = 'sampleList.csv'
 df = pd.read_csv(f)
-df = df.head(10)
+#df = df.head(1000)
 
 #------------------------------------------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ percent = ratio * 100
 print "'%' of domains retrieved:", round(percent, 2)
 
 
-df.to_csv('sampleListInput.csv', index = False)
+df.to_csv('sampleListInputGoogle.csv', index = False)
 
 
 
