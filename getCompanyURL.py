@@ -15,13 +15,41 @@ service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
 # Read input list file
 f = 'sampleList.csv'
 df = pd.read_csv(f)
-#df = df.head(1000)
+df = df.head(10)
+
+text = ['inc', 'Inc', 'INC', 'llc', 'Llc', 'LLC']
+
+#------------------------------------------------------------------------------------------------------------
+
+# Need to check that text is the last word in the string before removal
+
+def removeText(company_name):
+
+	#company_name = company_name.split(' ')
+	last = company_name[-1]
+
+	for item in text:
+		if item == last:
+			company_name = company_name[:-1]
+			company_name = ' '.join(company_name)
+
+	return company_name
 
 #------------------------------------------------------------------------------------------------------------
 
 def getDomain(company_name):
 
-	query = company_name
+	company_name = company_name.split(' ')
+	last = company_name[-1]
+
+	if last in text:
+		query = removeText(company_name)
+		#print query
+
+	else:
+		query = company_name
+		#print query
+
 	params = {
 			'query': query,
 			'limit': 1,
@@ -61,8 +89,3 @@ print "'%' of domains retrieved:", round(percent, 2)
 
 
 df.to_csv('sampleListInputGoogle.csv', index = False)
-
-
-
-
-
