@@ -11,6 +11,8 @@ import pandas as pd
 
 api_key = 'AIzaSyCTVEnopRQIgUkS0BunQ3pQFq64FnYP2O4'
 service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
+clearbit_service_url = 'https://autocomplete.clearbit.com/v1/companies/suggest?'
+
 
 # Read input list file
 f = 'sampleList.csv'
@@ -41,7 +43,7 @@ def getDomain(company_name):
 
 	count = 0
 
-	# First query
+	# First query to Knowledge Graph API
 
 	query = company_name
 
@@ -63,7 +65,7 @@ def getDomain(company_name):
 				return element['result']['url']
 
 
-	# Conditional second query
+	# Conditional second query to Knowledge Graph API
 
 	if count == 0:
 
@@ -71,6 +73,7 @@ def getDomain(company_name):
 		last = company_name[-1]
 
 		if last in text:
+
 			query = removeText(company_name)
 
 			params = {
@@ -90,6 +93,23 @@ def getDomain(company_name):
 						element['result']['url'] = element['result']['url'].encode("utf-8")
 						return element['result']['url']
 
+
+		# Conditional third query, this time with ClearBit API
+
+		else:
+
+			company_name = ' '.join(company_name)
+			query = company_name
+
+			params = {
+					'query': query
+			}
+
+			url = clearbit_service_url + urllib.urlencode(params)
+			response = json.loads(urllib.urlopen(url).read())
+
+			if len(response) > 0:
+				return response[0]['domain']
 
 
 #-------------------------------------------------------------------------------------------------------------
