@@ -39,16 +39,11 @@ def removeText(company_name):
 
 def getDomain(company_name):
 
-	company_name = company_name.split(' ')
-	last = company_name[-1]
+	count = 0
 
-	if last in text:
-		query = removeText(company_name)
-		#print query
+	# First query
 
-	else:
-		query = company_name
-		#print query
+	query = company_name
 
 	params = {
 			'query': query,
@@ -63,12 +58,43 @@ def getDomain(company_name):
 	if 'itemListElement' in response.keys():
 		for element in response['itemListElement']:
 			if 'url' in element['result'].keys():
+				count += 1
 				element['result']['url'] = element['result']['url'].encode("utf-8")
 				return element['result']['url']
 
+
+	# Conditional second query
+
+	if count == 0:
+
+		company_name = company_name.split(' ')
+		last = company_name[-1]
+
+		if last in text:
+			query = removeText(company_name)
+
+			params = {
+					'query': query,
+					'limit': 1,
+					'indent': True,
+					'key': api_key,
+			}
+
+			url = service_url + '?' + urllib.urlencode(params)
+			response = json.loads(urllib.urlopen(url).read())
+
+			if 'itemListElement' in response.keys():
+				for element in response['itemListElement']:
+					if 'url' in element['result'].keys():
+						count += 1
+						element['result']['url'] = element['result']['url'].encode("utf-8")
+						return element['result']['url']
+
+
+
 #-------------------------------------------------------------------------------------------------------------
 
-# Helper function
+# Apply function
 def getDomains(accountName):
 
 	df['Domain'] = accountName.apply(getDomain)
@@ -76,7 +102,7 @@ def getDomains(accountName):
 
 #-------------------------------------------------------------------------------------------------------------
 
-# Test helper function
+# Main Function
 df = getDomains(df['Account Name'])
 
 
@@ -89,3 +115,54 @@ print "'%' of domains retrieved:", round(percent, 2)
 
 
 df.to_csv('sampleListInputGoogle.csv', index = False)
+
+
+
+# ### TEST INDIVIDUAL QUERIES
+# query = 'SIERRA PACIFIC INDUSTRIES'
+# 		#print query
+# params = {
+# 		'query': query,
+# 		'limit': 1,
+# 		'indent': True,
+# 		'key': api_key,
+# }
+
+# url = service_url + '?' + urllib.urlencode(params)
+# response = json.loads(urllib.urlopen(url).read())
+
+# count = 0
+
+# if 'itemListElement' in response.keys():
+# 	for element in response['itemListElement']:
+# 		if 'url' in element['result'].keys():
+# 			count += 1
+# 			element['result']['url'] = element['result']['url'].encode("utf-8")
+# 			print element['result']['url']
+
+
+# if count == 0:
+# 	query = query.split(' ')
+# 	query = query[:-1]
+# 	query = ' '.join(query)
+
+# 	params = {
+# 			'query': query,
+# 			'limit': 1,
+# 			'indent': True,
+# 			'key': api_key,
+# 	}
+
+# 	url = service_url + '?' + urllib.urlencode(params)
+# 	response = json.loads(urllib.urlopen(url).read())
+
+
+# 	if 'itemListElement' in response.keys():
+# 		for element in response['itemListElement']:
+# 			if 'url' in element['result'].keys():
+# 				count += 1
+# 				element['result']['url'] = element['result']['url'].encode("utf-8")
+# 				print element['result']['url']
+
+
+
